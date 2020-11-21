@@ -1,9 +1,11 @@
 from database import SessionLocal
+from repository import SQLTasksListRepository
+from type_hints import Repository
 
 
-def get_db():
-    db = SessionLocal()
+def get_repository() -> Repository:
+    session = SessionLocal()
     try:
-        yield db
+        yield SQLTasksListRepository(session)
     finally:
-        db.close()
+        session.close()

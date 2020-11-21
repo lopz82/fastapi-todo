@@ -1,2 +1,5 @@
 .idea
 *.iml
+sql_app.db
+Pipfile
+Pipfile.lock

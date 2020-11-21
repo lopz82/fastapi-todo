@@ -2,7 +2,7 @@ import models
 import repository
 
 
-def test_repository_can_add_a_tasks_list(session):
+def test_sql_repository_can_add_a_tasks_list(session):
     tasks_lists = models.TasksList(name="Test list", description="A simple test list")
 
     repo = repository.SQLTasksListRepository(session)
@@ -13,7 +13,7 @@ def test_repository_can_add_a_tasks_list(session):
     assert rows == [("Test list", "A simple test list")]
 
 
-def test_repository_can_read_a_tasks_list(session):
+def test_sql_repository_can_read_a_tasks_list(session):
     session.execute(
         'INSERT INTO taskslists (name, description) VALUES ("Test list", "A simple test list")'
     )
@@ -25,7 +25,7 @@ def test_repository_can_read_a_tasks_list(session):
     assert item.description == "A simple test list"
 
 
-def test_repository_can_update_a_tasks_list(session):
+def test_sql_repository_can_update_a_tasks_list(session):
     session.execute(
         'INSERT INTO taskslists (name, description) VALUES ("Test List", "A simple test list")'
     )
@@ -39,7 +39,7 @@ def test_repository_can_update_a_tasks_list(session):
     assert rows == [("Updated test list", "A simple test list")]
 
 
-def test_repository_can_replace_a_tasks_list(session):
+def test_sql_repository_can_replace_a_tasks_list(session):
     session.execute(
         'INSERT INTO taskslists (name, description) VALUES ("Test List", "A simple test list")'
     )
@@ -53,3 +53,15 @@ def test_repository_can_replace_a_tasks_list(session):
     assert replaced_item is not None
     rows = list(session.execute('SELECT name, description FROM "taskslists"'))
     assert rows == [("Replaced test list", "A simple replaced test list")]
+
+
+def test_sql_repository_can_delete_a_tasks_list(session):
+    session.execute(
+        'INSERT INTO taskslists (name, description) VALUES ("Test List", "A simple test list")'
+    )
+
+    repo = repository.SQLTasksListRepository(session)
+    repo.delete(item_id=1)
+
+    rows = list(session.execute('SELECT name, description FROM "taskslists"'))
+    assert rows == []

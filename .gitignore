@@ -3,3 +3,4 @@
 sql_app.db
 Pipfile
 Pipfile.lock
+__pycache__

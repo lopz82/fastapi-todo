@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 
 from pydantic import BaseModel
 
@@ -28,6 +28,11 @@ class TasksListBase(BaseModel):
     name: str
     description: str
     # tasks: List[Task]
+
+
+class TasksListPatch(TasksListBase):
+    name: Optional[str]
+    description: Optional[str]
 
 
 @bound(model=models.TasksList)

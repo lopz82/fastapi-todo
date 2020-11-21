@@ -1,6 +1,4 @@
-from pydantic import BaseModel
-from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.orm import Session
+from typing import List
 
 import models
 import schemas
@@ -25,15 +23,19 @@ def get_tasks_list(repo: Repository, item_id: int) -> models.TasksList:
     return repo.get(item_id)
 
 
+def get_all_tasks_lists(repo: Repository) -> List[models.TasksList]:
+    return repo.get_all()
+
+
 def update_tasks_list(repo: Repository, item_id: int, data: dict) -> models.TasksList:
     return repo.update(item_id, data)
-
-
-def delete_tasks_list(repo: Repository, item_id: int) -> None:
-    repo.delete(item_id)
 
 
 def replace_tasks_list(
     repo: Repository, item_id: int, replacement: models.TasksList
 ) -> models.TasksList:
     return repo.replace(item_id, replacement)
+
+
+def delete_tasks_list(repo: Repository, item_id: int) -> None:
+    repo.delete(item_id)

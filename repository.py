@@ -1,3 +1,5 @@
+from typing import List
+
 from sqlalchemy.orm import Session
 
 import models
@@ -53,21 +55,25 @@ class SQLTasksListRepository:
     def get(self, item_id: int) -> models.TasksList:
         return self.session.query(models.TasksList).get(item_id)
 
+    def get_all(self) -> List[models.TasksList]:
+        return self.session.query(models.TasksList).all()
+
     def update(self, item_id: int, data: dict) -> models.TasksList:
-        updated = (
-            self.session.query(models.TasksList)
-            .filter(models.TasksList.id == item_id)
-            .update(data, synchronize_session="fetch")
+        self.session.query(models.TasksList).filter(
+            models.TasksList.id == item_id
+        ).update(data, synchronize_session="fetch")
+        self.session.commit()
+        return self.get(item_id)
+
+    def replace(self, item_id: int, replacement: models.TasksList) -> models.TasksList:
+        updated = self.update(
+            item_id, {"name": replacement.name, "description": replacement.description}
         )
         self.session.commit()
         return updated
-
-    def replace(self, item_id: int, replacement: models.TasksList) -> models.TasksList:
-        return self.update(
-            item_id, {"name": replacement.name, "description": replacement.description}
-        )
 
     def delete(self, item_id: int):
         self.session.query(models.TasksList).filter(
             models.TasksList.id == item_id
         ).delete(synchronize_session="fetch")
+        self.session.commit()

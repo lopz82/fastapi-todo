@@ -39,12 +39,20 @@ class FakeTasksListRepository:
         [result] = [tasks_list for tasks_list in self._repo if tasks_list.id == item_id]
         return result
 
+    def get_all(self) -> List[models.TasksList]:
+        return list(self._repo)
+
     def update(self, item_id: int, data: dict) -> models.TasksList:
         item = self.get(item_id)
         self.delete(item_id)
         item.__dict__.update(data)
         self._repo.add(item)
         return item
+
+    def replace(self, item_id: int, replacement: models.TasksList) -> models.TasksList:
+        return self.update(
+            item_id, {"name": replacement.name, "description": replacement.description}
+        )
 
     def delete(self, item_id: id):
         [item] = [tasks_list for tasks_list in self._repo if tasks_list.id == item_id]

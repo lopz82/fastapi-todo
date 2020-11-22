@@ -1,11 +1,18 @@
+import os
+
 from database import SessionLocal
-from repository import SQLTasksListRepository
+from repository import SQLTasksListRepository, FakeTasksListRepository, FakeSession
 from type_hints import Repository
 
 
 def get_repository() -> Repository:
-    session = SessionLocal()
+    if os.getenv("FASTAPI_ENV", "TEST") == "TEST":
+        session = FakeSession()
+        repo = FakeTasksListRepository(session)
+    else:
+        session = SessionLocal()
+        repo = SQLTasksListRepository(session)
     try:
-        yield SQLTasksListRepository(session)
+        yield repo
     finally:
         session.close()

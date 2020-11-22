@@ -13,9 +13,18 @@ class TaskRepository:
         self._tasks.add(task)
 
 
+fake_set = set()
+
+
+class FakeSession:
+    def close(self):
+        pass
+
+
 class FakeTasksListRepository:
-    def __init__(self):
-        self._repo = set()
+    def __init__(self, session):
+        self.session = session
+        self._repo = fake_set
 
     @property
     def next_id(self):

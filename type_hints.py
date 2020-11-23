@@ -1,4 +1,4 @@
-from typing import Protocol, TypeVar, Union, List
+from typing import Protocol, TypeVar, Union, List, Optional
 
 import models
 import schemas
@@ -13,7 +13,7 @@ class Repository(Protocol[T]):
     def add(self, item: T) -> T:
         ...
 
-    def get(self, item_id: int) -> T:
+    def get(self, item_id: int) -> Optional[T]:
         ...
 
     def get_all(self) -> List[T]:

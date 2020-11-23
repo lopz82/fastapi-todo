@@ -1,7 +1,7 @@
 from typing import List
 
 import uvicorn as uvicorn
-from fastapi import FastAPI, Depends, Path
+from fastapi import FastAPI, Depends, Path, HTTPException
 
 import models
 import schemas
@@ -32,12 +32,15 @@ def get_tasks_list(
     tasks_list_id: int = Path(..., title="Tasks list ID", gt=0),
     repo: Repository = Depends(get_repository),
 ):
-    return services.get_tasks_list(repo, tasks_list_id)
+    res = services.get_tasks_list(repo, tasks_list_id)
+    if not res:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return res
 
 
 @app.patch("/taskslists/{tasks_list_id}", response_model=schemas.TasksList)
 def patch_tasks_list(
-    tasks_list: schemas.TasksListCreate,
+    tasks_list: schemas.TasksListPatch,
     tasks_list_id: int = Path(..., title="Tasks list ID", gt=0),
     repo: Repository = Depends(get_repository),
 ):
@@ -62,4 +65,4 @@ def delete_tasks_list(
 
 
 if __name__ == "__main__":  # pragma: no cover
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+    uvicorn.run("main:app", host="0.0.0.0", port=8080, reload=True)

@@ -39,22 +39,6 @@ def test_sql_repository_can_update_a_tasks_list(session):
     assert rows == [("Updated test list", "A simple test list")]
 
 
-def test_sql_repository_can_replace_a_tasks_list(session):
-    session.execute(
-        'INSERT INTO taskslists (name, description) VALUES ("Test List", "A simple test list")'
-    )
-    new_tasks_lists = models.TasksList(
-        name="Replaced test list", description="A simple replaced test list"
-    )
-
-    repo = repository.SQLTasksListRepository(session)
-    replaced_item = repo.replace(item_id=1, replacement=new_tasks_lists)
-
-    assert replaced_item is not None
-    rows = list(session.execute('SELECT name, description FROM "taskslists"'))
-    assert rows == [("Replaced test list", "A simple replaced test list")]
-
-
 def test_sql_repository_can_delete_a_tasks_list(session):
     session.execute(
         'INSERT INTO taskslists (name, description) VALUES ("Test List", "A simple test list")'

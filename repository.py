@@ -1,8 +1,9 @@
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy.orm import Session
 
 import models
+from utils import update_dict
 
 
 class TaskRepository:
@@ -28,24 +29,26 @@ class FakeTasksListRepository:
 
     @property
     def next_id(self):
-        return len(self._repo)
+        return len(self._repo) + 1
 
     def add(self, tasks_list: models.TasksList) -> models.TasksList:
         tasks_list.id = self.next_id
         self._repo.add(tasks_list)
         return tasks_list
 
-    def get(self, item_id: int) -> models.TasksList:
-        [result] = [tasks_list for tasks_list in self._repo if tasks_list.id == item_id]
-        return result
+    def get(self, item_id: int) -> Optional[models.TasksList]:
+        result = [tasks_list for tasks_list in self._repo if tasks_list.id == item_id]
+        if not result:
+            return None
+        return result[0]
 
     def get_all(self) -> List[models.TasksList]:
-        return list(self._repo)
+        return sorted(list(self._repo), key=lambda x: x.id)
 
     def update(self, item_id: int, data: dict) -> models.TasksList:
         item = self.get(item_id)
         self.delete(item_id)
-        item.__dict__.update(data)
+        update_dict(item.__dict__, data)
         self._repo.add(item)
         return item
 

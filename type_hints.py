@@ -3,8 +3,11 @@ from typing import Protocol, TypeVar, Union, List, Optional
 import models
 import schemas
 
-Model = Union[models.TasksList]
-Schemas = Union[schemas.TasksList, schemas.TasksListCreate]
+Model = Union[models.TasksList, models.User, models.Task]
+Schemas = Union[
+    schemas.TasksList, schemas.TasksListCreate, schemas.UserCreate, schemas.User
+]
+
 
 T = TypeVar("T")
 

@@ -72,11 +72,11 @@ class SQLTasksListRepository:
         self.session.refresh(tasks_list)
         return tasks_list
 
-    def get(self, item_id: int) -> models.TasksList:
+    def get(self, item_id: int) -> Optional[models.TasksList]:
         return self.session.query(models.TasksList).get(item_id)
 
     def get_all(self) -> List[models.TasksList]:
-        return self.session.query(models.TasksList).all()
+        return self.session.query(models.TasksList).order_by(models.TasksList.id).all()
 
     def update(self, item_id: int, data: dict) -> models.TasksList:
         self.session.query(models.TasksList).filter(

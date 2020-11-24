@@ -7,7 +7,7 @@ import models
 import schemas
 import services
 from database import engine
-from dependencies import get_repository
+from dependencies import get_repository, get_users_repository
 from type_hints import Repository
 
 app = FastAPI()
@@ -62,6 +62,50 @@ def delete_tasks_list(
     repo: Repository = Depends(get_repository),
 ):
     services.delete_tasks_list(repo, tasks_list_id)
+
+
+@app.post("/users", response_model=schemas.User, status_code=201)
+def create_user(
+    user: schemas.UserCreate, repo: Repository = Depends(get_users_repository)
+):
+    return services.create_user(repo, user)
+
+
+@app.get("/users/{user_id}", response_model=schemas.User)
+def get_user(
+    user_id: int = Path(..., title="User ID", gt=0),
+    repo: Repository = Depends(get_users_repository),
+):
+    try:
+        res = services.get_user(repo, user_id)
+    except services.UserNotFound:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return res
+
+
+@app.get("/users", response_model=List[schemas.User])
+def get_all_users(repo: Repository = Depends(get_users_repository)):
+    return services.get_all_users(repo)
+
+
+@app.patch("/users/{user_id}", response_model=schemas.User)
+def patch_user(
+    user: schemas.UserPatch,
+    user_id: int = Path(..., title="User ID"),
+    repo: Repository = Depends(get_users_repository),
+):
+    return services.update_user(repo, user_id, user.dict())
+
+
+@app.delete("/users/{user_id}")
+def delete_user(
+    user_id: int = Path(..., title="User ID"),
+    repo: Repository = Depends(get_users_repository),
+):
+    try:
+        services.delete_user(repo, user_id)
+    except services.UserNotFound:
+        raise HTTPException(status_code=404, detail="Item not found")
 
 
 if __name__ == "__main__":  # pragma: no cover

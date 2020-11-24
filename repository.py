@@ -57,7 +57,7 @@ class FakeTasksListRepository:
             item_id, {"name": replacement.name, "description": replacement.description}
         )
 
-    def delete(self, item_id: id):
+    def delete(self, item_id: id) -> None:
         [item] = [tasks_list for tasks_list in self._repo if tasks_list.id == item_id]
         self._repo.remove(item)
 
@@ -85,15 +85,38 @@ class SQLTasksListRepository:
         self.session.commit()
         return self.get(item_id)
 
-    def replace(self, item_id: int, replacement: models.TasksList) -> models.TasksList:
-        updated = self.update(
-            item_id, {"name": replacement.name, "description": replacement.description}
-        )
-        self.session.commit()
-        return updated
-
-    def delete(self, item_id: int):
+    def delete(self, item_id: int) -> None:
         self.session.query(models.TasksList).filter(
             models.TasksList.id == item_id
         ).delete(synchronize_session="fetch")
+        self.session.commit()
+
+
+class SQLUserRepository:
+    def __init__(self, session: Session):
+        self.session = session
+
+    def add(self, user: models.User) -> models.User:
+        self.session.add(user)
+        self.session.commit()
+        self.session.refresh(user)
+        return user
+
+    def get(self, item_id: int) -> models.User:
+        return self.session.query(models.User).get(item_id)
+
+    def get_all(self) -> List[models.User]:
+        return self.session.query(models.User).order_by(models.User.id).all()
+
+    def update(self, item_id: int, data: dict) -> models.User:
+        self.session.query(models.User).filter(models.User.id == item_id).update(
+            data, synchronize_session="fetch"
+        )
+        self.session.commit()
+        return self.get(item_id)
+
+    def delete(self, item_id: int) -> None:
+        self.session.query(models.User).filter(models.User.id == item_id).delete(
+            synchronize_session="fetch"
+        )
         self.session.commit()

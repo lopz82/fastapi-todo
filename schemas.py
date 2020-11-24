@@ -10,8 +10,8 @@ from decorators import bound
 class TaskBase(BaseModel):
     name: str
     description: str
-    due: datetime
-    created: datetime
+    due: Optional[datetime]
+    created: datetime = datetime.now()
 
 
 class TaskCreate(TaskBase):
@@ -27,12 +27,12 @@ class Task(TaskBase):
 class TasksListBase(BaseModel):
     name: str
     description: str
-    # tasks: List[Task]
 
 
 class TasksListPatch(TasksListBase):
     name: Optional[str]
     description: Optional[str]
+    tasks: Optional[List[Task]]
 
 
 @bound(model=models.TasksList)
@@ -43,6 +43,7 @@ class TasksListCreate(TasksListBase):
 @bound(model=models.TasksList)
 class TasksList(TasksListBase):
     id: int
+    tasks: List[Task]
 
     class Config:
         orm_mode = True
@@ -53,16 +54,25 @@ class UserBase(BaseModel):
     email: str
 
 
+@bound(model=models.User)
 class UserCreate(UserBase):
     password: str
-    retype_password: str
 
 
+@bound(model=models.User)
 class User(UserBase):
     id: int
-    password: str
-    salt: str
-    lists: List[TasksList] = []
+    tasks_lists: List[TasksList]
 
     class Config:
         orm_mode = True
+
+
+class UserSecret(User):
+    password: str
+
+
+class UserPatch(UserBase):
+    name: Optional[str]
+    email: Optional[str]
+    password: Optional[str]

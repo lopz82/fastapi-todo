@@ -1,9 +1,15 @@
 from typing import List
 
+import crypto
 import models
 import schemas
 from decorators import schema_model_mapping
 from type_hints import Repository, Model, Schemas
+from utils import clean_empty_keys
+
+
+class UserNotFound(Exception):
+    pass
 
 
 def convert_to_model(schema: Schemas) -> Model:
@@ -28,14 +34,43 @@ def get_all_tasks_lists(repo: Repository) -> List[models.TasksList]:
 
 
 def update_tasks_list(repo: Repository, item_id: int, data: dict) -> models.TasksList:
-    return repo.update(item_id, data)
+    return repo.update(item_id, clean_empty_keys(data))
 
 
 def replace_tasks_list(
-    repo: Repository, item_id: int, replacement: models.TasksList
+    repo: Repository, item_id: int, replacement: schemas.TasksListCreate
 ) -> models.TasksList:
-    return repo.replace(item_id, replacement)
+    return repo.update(item_id, replacement.dict())
 
 
 def delete_tasks_list(repo: Repository, item_id: int) -> None:
+    repo.delete(item_id)
+
+
+def create_user(repo: Repository, user: schemas.UserCreate) -> models.User:
+    user.password = crypto.hash_password(user.password)
+    user_model = convert_to_model(user)
+    return repo.add(user_model)
+
+
+def get_user(repo: Repository, user_id: int) -> models.User:
+    user = repo.get(user_id)
+    if not user:
+        raise UserNotFound()
+    return user
+
+
+def get_all_users(repo: Repository) -> List[models.User]:
+    return repo.get_all()
+
+
+def update_user(repo: Repository, item_id: int, data: dict) -> models.User:
+    sanitized = clean_empty_keys(data)
+    if "password" in sanitized:
+        data["password"] = crypto.hash_password(data["password"])
+    return repo.update(item_id, sanitized)
+
+
+def delete_user(repo: Repository, item_id: int) -> None:
+    get_user(repo, item_id)
     repo.delete(item_id)

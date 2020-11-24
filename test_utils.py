@@ -1,6 +1,6 @@
 import pytest
 
-from utils import update_dict
+from utils import update_dict, clean_empty_keys
 
 
 @pytest.mark.parametrize(
@@ -32,3 +32,10 @@ from utils import update_dict
 def test_update_dict(a, b, expected):
     update_dict(a, b)
     assert a == expected
+
+
+@pytest.mark.parametrize(
+    "a, expected", [({"a": "1", "b": None, "c": "3", "d": None}, {"a": "1", "c": "3"})]
+)
+def test_clean_empty_keys(a, expected):
+    assert expected == clean_empty_keys(a)
